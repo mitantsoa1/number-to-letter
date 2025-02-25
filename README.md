@@ -10,7 +10,7 @@ Une bibliothèque PHP permettant de convertir des nombres en lettres avec gestio
 Utilisez **Composer** pour installer le package dans votre projet :
 
 ```sh
-composer require mitantsoa/number-to-letter:^1.0
+composer require mitantsoa/number-to-letter:^1.1
 
 ---
 ###  Usage
