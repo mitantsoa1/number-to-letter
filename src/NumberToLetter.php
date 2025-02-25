@@ -123,6 +123,25 @@ class NumberToLetter
         return "Nombre trop grand";
     }
 
+    private function countLeadingZeros(string $number): int
+    {
+        preg_match('/^0+/', $number, $matches);
+        return isset($matches[0]) ? strlen($matches[0]) : 0;
+    }
+
+    private function convertDecimal(string $number)
+    {
+        $text = '';
+        $zeros = $this->countLeadingZeros($number);
+
+        for ($i = 0; $i < $zeros; $i++) {
+            $text .= "zéro ";
+        }
+
+        $text .= $this->convert((int) $number);
+        return $text;
+    }
+
     public function convertNumberToLetter(float $number, string $devise = '')
     {
         $floor = floor($number);
@@ -133,15 +152,21 @@ class NumberToLetter
         $decimal = round($number - $floor, (int)$decimalPrecision);
 
         $valueDecimal = explode('.', (string) $decimal);
-        $decimal = (int) $valueDecimal[1];
 
-        if ($decimal != 0 && $devise === "") {
+        $decimal = 0;
+        if (count($valueDecimal) > 1) {
+            $decimal = $valueDecimal[1];
+        }
+
+        $dec = (int) $decimal;
+
+        if ($dec != 0 && $devise === "") {
             return 'devise manquante';
         }
 
-        if ($decimal == 0) {
+        if ($dec == 0) {
             return trim($this->convert($floor) . " " . $devise);
         }
-        return trim($this->convert($floor) . " " . $devise . " " . $this->convert($decimal));
+        return trim($this->convert($floor) . " " . $devise . " " . $this->convertDecimal($decimal));
     }
 }
