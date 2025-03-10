@@ -17,5 +17,6 @@ composer require mitantsoa/number-to-letter
 use Mitantsoa\NumberToLetter\NumberToLetter;
 $converter = new NumberToLetter();
 echo $converter->convertNumberToLetter(1250.75, 'Euros');
+echo $converter->convertNumberToLetter(1250.75, 'Euros','en');
 ===> "Mille deux cent cinquante Euros soixante-quinze"
 ```

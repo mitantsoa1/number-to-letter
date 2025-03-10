@@ -90,13 +90,14 @@ class NumberToLetter
 
     private function convert(int $number, string $devise, string $lang): string
     {
+        if ($lang)
+            $lang = strtolower($lang);
         if ($lang == 'fr' || $lang == '') {
             $minus = 'moins ';
             $tooLarge = 'Nombre trop grand';
             $units = self::$units;
             $tens = self::$tens;
         } elseif ($lang == 'en') {
-            $tooBig = 'Nombre trop grand';
             $minus = 'minus ';
             $units = self::$unitsEn;
             $tens = self::$tensEn;
