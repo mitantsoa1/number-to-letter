@@ -59,7 +59,7 @@ class NumberToLetter
         12 => 'twelve',
         13 => 'thirteen',
         14 => 'fourteen',
-        15 => 'fiftenn',
+        15 => 'fifteen',
         16 => 'sixteen',
         17 => 'seventeen',
         18 => 'eighteen',
@@ -68,27 +68,46 @@ class NumberToLetter
         30 => 'thirty',
         40 => 'fourty',
         50 => 'fifty',
-        60 => 'sity',
+        60 => 'sixty',
         70 => 'seventy',
         80 => 'eighty',
         90 => 'ninety'
     ];
 
-    private function convert(int $number, string $lang = 'fr'): string
-    {
+    private static array $comma = [
+        1 => 'tenths',
+        2 => 'hundredths',
+        3 => 'thousandths',
+        4 => 'ten-thousandths',
+        5 => 'hundred-thousandths',
+        6 => 'millionths',
+        7 => 'ten-millionths',
+        8 => 'hundred-millionths',
+        9 => 'billionths',
+        10 => 'ten-billionths',
+        11 => 'hundred-billionths',
+        12 => 'trillionths'
+    ];
 
-        if ($lang == 'fr') {
+    private function convert(int $number, string $devise, string $lang): string
+    {
+        if ($lang == 'fr' || $lang == '') {
             $minus = 'moins ';
+            $tooLarge = 'Nombre trop grand';
             $units = self::$units;
             $tens = self::$tens;
         } elseif ($lang == 'en') {
+            $tooBig = 'Nombre trop grand';
             $minus = 'minus ';
             $units = self::$unitsEn;
             $tens = self::$tensEn;
+            $tooLarge = 'number too large';
+        } else {
+            return "$lang unknown";
         }
 
         if ($number < 0) {
-            return $minus . $this->convert(-$number);
+            return $minus . $this->convert(-$number, $devise, $lang);
         }
 
         if ($number < 10) {
@@ -104,68 +123,85 @@ class NumberToLetter
             $unite = $number % 10;
 
             if ($unite === 0) {
-                return self::$tens[$decimal];
+                return $tens[$decimal];
             }
 
-            if ($decimal === 70 || $decimal === 90) {
-                return self::$tens[$decimal - 10] . " " . self::$tens[10 + $unite];
+            if (($decimal === 70 || $decimal === 90) && $lang == 'fr') {
+                return $tens[$decimal - 10] . " " . $tens[10 + $unite];
             }
-            return self::$tens[$decimal] . " " . self::$units[$unite];
+            return $tens[$decimal] . " " . $units[$unite];
         }
 
         if ($number < 1000) {
             $centaine = (int) ($number / 100);
             $remainder = $number % 100;
 
-            $hundredText = $centaine == 1 ? "cent" : self::$units[$centaine] . " cent";
-
+            if ($lang == 'fr')
+                $hundredText = $centaine == 1 ? "cent" : $units[$centaine] . " cent";
+            else if ($lang == "en") {
+                $hundredText =  $units[$centaine] . " hundred";
+            }
             if ($remainder === 0) {
                 return $hundredText;
             }
 
-            return $hundredText . " " . self::convert($remainder);
+            return $hundredText . " " . self::convert($remainder, $devise, $lang);
         }
 
         if ($number < 1000000) {
             $thousands = (int) ($number / 1000);
             $remainder = $number % 1000;
 
-            $thousandText =  $thousands == 1 ? "mille" : self::convert($thousands) . " mille";
+            $thousandText =  $thousands == 1 ? "mille" : self::convert($thousands, $devise, $lang) . " mille";
+
+            if ($lang == 'fr')
+                $thousandText =  $thousands == 1 ? "mille" : self::convert($thousands, $devise, $lang) . " mille";
+            else if ($lang == "en") {
+                $thousandText =  self::convert($thousands, $devise, $lang) . " thousand";
+            }
 
             if ($remainder === 0) {
                 return $thousandText;
             }
 
-            return $thousandText . " " . self::convert($remainder);
+            return $thousandText . " " . self::convert($remainder, $devise, $lang);
         }
 
         if ($number < 1000000000) {
             $millier = (int) ($number / 1000000);
             $remainder = $number % 1000000;
 
-            $millierText =  $millier == 1 ? "Un million" : self::convert($millier) . " millions";
+
+            if ($lang == 'fr')
+                $millierText =  $millier == 1 ? "Un million" : self::convert($millier, $devise, $lang) . " millions";
+            else if ($lang == "en") {
+                $millierText = self::convert($millier, $devise, $lang) . " million";
+            }
 
             if ($remainder === 0) {
                 return $millierText;
             }
 
-            return $millierText . " " . self::convert($remainder);
+            return $millierText . " " . self::convert($remainder, $devise, $lang);
         }
 
         if ($number < 1000000000000) {
             $milliard = (int) ($number / 1000000000);
             $remainder = $number % 1000000000;
 
-            $milliardText =  $milliard == 1 ? "Un milliard" : self::convert($milliard) . " milliards";
+            if ($lang == 'fr')
+                $milliardText =  $milliard == 1 ? "Un milliard" : self::convert($milliard, $devise, $lang) . " milliards";
+            elseif ($lang == 'en')
+                $milliardText = self::convert($milliard, $devise, $lang) . " billion";
 
             if ($remainder === 0) {
                 return $milliardText;
             }
 
-            return $milliardText . " " . self::convert($remainder);
+            return $milliardText . " " . self::convert($remainder, $devise, $lang);
         }
 
-        return "Nombre trop grand";
+        return $tooLarge;
     }
 
     private function countLeadingZeros(string $number): int
@@ -174,17 +210,41 @@ class NumberToLetter
         return isset($matches[0]) ? strlen($matches[0]) : 0;
     }
 
-    private function convertDecimal(string $number)
+    private function countLeadingDecimal(string $number): int
+    {
+        $nbr = explode('.', $number);
+
+        $nombreDec = 0;
+        if (isset($nbr[0]))
+            $nombreDec = strlen($nbr[0]);
+
+        return $nombreDec;
+    }
+
+    private function convertDecimal(string $number, $devise = '', $lang = 'fr')
     {
         $text = '';
         $zeros = $this->countLeadingZeros($number);
-
         for ($i = 0; $i < $zeros; $i++) {
             $text .= "zéro ";
         }
 
-        $text .= $this->convert((int) $number);
+        $text .= $this->convert((int) $number, $devise, $lang);
         return $text;
+    }
+    private function convertDecimalEn(string $number, $devise = '', $lang = 'fr')
+    {
+        $count = 1;
+        $text = '';
+        $zeros = $this->countLeadingDecimal($number);
+
+        // for ($i = 0; $i < $zeros; $i++) {
+        //     $count++;
+        //     // $text .= "zéro ";
+        // }
+
+        $text .= 'and ' . $this->convert((int) $number, $devise, $lang);
+        return $text . ' ' . self::$comma[$zeros];
     }
 
     public function convertNumberToLetter(float $number, string $devise = '', $lang = 'fr')
@@ -210,8 +270,11 @@ class NumberToLetter
         }
 
         if ($dec == 0) {
-            return trim($this->convert($floor) . " " . $devise);
+            return trim($this->convert($floor, '', $lang) . " " . $devise);
         }
-        return trim($this->convert($floor) . " " . $devise . " " . $this->convertDecimal($decimal));
+        if ($lang == 'fr')
+            return trim($this->convert($floor, '', $lang) . " " . $devise . " " . $this->convertDecimal($decimal, $devise, $lang));
+        elseif ($lang == 'en')
+            return trim($this->convert($floor, '', $lang)  . " " . $this->convertDecimalEn($decimal, $devise, $lang) . " " . $devise);
     }
 }

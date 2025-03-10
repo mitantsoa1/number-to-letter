@@ -22,5 +22,7 @@ class NumberToLetterTest extends TestCase
         $this->assertEquals("Un milliard", $numberToLetter->convertNumberToLetter(1000000000));
         $this->assertEquals("onze milliards deux cent deux", $numberToLetter->convertNumberToLetter(11000000202));
         $this->assertEquals("neuf millions trois cent mille Ariary quatre cent huit", $numberToLetter->convertNumberToLetter(9300000.408, 'Ariary'));
+        $this->assertEquals("one hundred ninety nine thousand nine hundred Ariary", $numberToLetter->convertNumberToLetter(199900, 'Ariary', 'en'));
+        $this->assertEquals("nineteen thousand nine hundred ninety two", $numberToLetter->convertNumberToLetter(19992, '', 'en'));
     }
 }
