@@ -40,63 +40,19 @@ class NumberToLetter
         90 => 'quatre vingt dix'
     ];
 
-    private static array $unitsEn = [
-        0 => 'zero',
-        1 => 'one',
-        2 => 'two',
-        3 => 'three',
-        4 => 'four',
-        5 => 'five',
-        6 => 'six',
-        7 => 'seven',
-        8 => 'eight',
-        9 => 'nine'
-    ];
-
-    private static array $tensEn = [
-        10 => 'ten',
-        11 => 'eleven',
-        12 => 'twelve',
-        13 => 'thirteen',
-        14 => 'fourteen',
-        15 => 'fiftenn',
-        16 => 'sixteen',
-        17 => 'seventeen',
-        18 => 'eighteen',
-        19 => 'nineteen',
-        20 => 'twenty',
-        30 => 'thirty',
-        40 => 'fourty',
-        50 => 'fifty',
-        60 => 'sity',
-        70 => 'seventy',
-        80 => 'eighty',
-        90 => 'ninety'
-    ];
-
-    private function convert(int $number, string $lang = 'fr'): string
+    private function convert(int $number): string
     {
 
-        if ($lang == 'fr') {
-            $minus = 'moins ';
-            $units = self::$units;
-            $tens = self::$tens;
-        } elseif ($lang == 'en') {
-            $minus = 'minus ';
-            $units = self::$unitsEn;
-            $tens = self::$tensEn;
-        }
-
         if ($number < 0) {
-            return $minus . $this->convert(-$number);
+            return "moins " . $this->convert(-$number);
         }
 
         if ($number < 10) {
-            return $units[$number];
+            return self::$units[$number];
         }
 
         if ($number < 20) {
-            return $tens[$number];
+            return self::$tens[$number];
         }
 
         if ($number < 100) {
@@ -187,7 +143,7 @@ class NumberToLetter
         return $text;
     }
 
-    public function convertNumberToLetter(float $number, string $devise = '', $lang = 'fr')
+    public function convertNumberToLetter(float $number, string $devise = '')
     {
         $floor = floor($number);
 
