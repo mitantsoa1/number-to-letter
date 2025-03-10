@@ -1,7 +1,6 @@
 <?php
 
-// namespace Mitantsoa\NumberToLetter;
-namespace App;
+namespace Mitantsoa\NumberToLetter;
 
 class NumberToLetter
 {
